@@ -14,4 +14,4 @@ A simple web application that generates motivational quotes using the OpenAI API
 
 - TypeScript
 - OpenAI API
-- HTML/CSS 
+- HTML/CSS "# InspireMe" 
