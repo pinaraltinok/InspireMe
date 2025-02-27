@@ -1,21 +1,15 @@
-import { OPENAI_API_KEY } from './config.js';
-
 class QuoteGenerator {
     private quoteElement: HTMLParagraphElement | null;
     private button: HTMLButtonElement | null;
-    private apiUrl = 'https://api.openai.com/v1/chat/completions';
+    private apiUrl = 'https://api.api-ninjas.com/v1/quotes';
+    private apiKey = '1lXdKD8u+L2jSy6Tnw72xg==34jap8f4t2sLWut4';
 
-    constructor(private apiKey: string) {
+    constructor() {
         this.quoteElement = document.getElementById('quote') as HTMLParagraphElement;
         this.button = document.getElementById('getQuote') as HTMLButtonElement;
         
         this.setupEventListeners();
-        // Don't auto-generate on load to avoid immediate API call
         this.quoteElement.textContent = 'Click the button to get a quote!';
-    }
-
-    private setupEventListeners(): void {
-        this.button?.addEventListener('click', () => this.generateQuote());
     }
 
     private async generateQuote(): Promise<void> {
@@ -24,51 +18,71 @@ class QuoteGenerator {
         try {
             this.button.disabled = true;
             this.button.textContent = 'Loading...';
-            this.quoteElement.textContent = 'Connecting to API...';
+            this.quoteElement.textContent = 'Fetching quote...';
 
             const response = await fetch(this.apiUrl, {
-                method: 'POST',
+                method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiKey}`
-                },
-                body: JSON.stringify({
-                    model: "gpt-3.5-turbo",
-                    messages: [{
-                        role: "user",
-                        content: "Generate a short motivational quote with its author. Format: 'Quote' - Author"
-                    }],
-                    max_tokens: 100,
-                    temperature: 0.7
-                })
+                    'X-Api-Key': this.apiKey
+                }
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                console.error('API Error:', errorData);
-                throw new Error(errorData.error?.message || `API error: ${response.status}`);
+                console.error('Response:', await response.text());
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
-            const data = await response.json();
-            const quote = data.choices[0]?.message?.content;
-            
-            if (quote) {
-                this.quoteElement.textContent = quote;
-            } else {
-                throw new Error('No quote received');
-            }
+
+            const [data] = await response.json();
+            const quote = `"${data.quote}" - ${data.author}`;
+            this.quoteElement.textContent = quote;
+
         } catch (error) {
             console.error('Error:', error);
-            this.quoteElement.textContent = error instanceof Error ? error.message : 
-                'Failed to generate quote. Please try again later.';
+            this.quoteElement.textContent = 'Failed to fetch quote. Please try again later.';
         } finally {
             this.button.disabled = false;
             this.button.textContent = 'Get Quote';
+        }
+    }
+
+    private setupEventListeners(): void {
+        this.button?.addEventListener('click', () => this.generateQuote());
+    }
+}
+
+class ThemeSwitch {
+    private checkbox: HTMLInputElement | null;
+
+    constructor() {
+        this.checkbox = document.getElementById('checkbox') as HTMLInputElement;
+        this.setupEventListeners();
+        this.initializeTheme();
+    }
+
+    private setupEventListeners(): void {
+        this.checkbox?.addEventListener('change', () => this.switchTheme());
+    }
+
+    private initializeTheme(): void {
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            if (this.checkbox) this.checkbox.checked = true;
+        }
+    }
+
+    private switchTheme(): void {
+        if (this.checkbox?.checked) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
         }
     }
 }
 
 // Initialize when the page loads
 window.addEventListener('DOMContentLoaded', () => {
-    new QuoteGenerator(OPENAI_API_KEY);
+    new QuoteGenerator();
+    new ThemeSwitch();
 }); 

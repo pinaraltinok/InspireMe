@@ -1,17 +1,22 @@
-# Motivational Quote Generator
+# InspireMe
 
-A simple web application that generates motivational quotes using the OpenAI API.
+A simple web application that generates random quotes using the Ninja API.
+
+## Features
+- Random quote generation
+- Dark/Light mode toggle
+- Modern, responsive UI
+- Theme persistence
 
 ## Setup
 
 1. Clone the repository
 2. Install dependencies: `npm install`
-3. Copy `src/config.example.ts` to `src/config.ts` and add your OpenAI API key
-4. Build the project: `npm run build`
-5. Start the server: `npm start`
+3. Build the project: `npm run build`
+4. Start the server: `npm start`
 
 ## Technologies Used
 
 - TypeScript
-- OpenAI API
-- HTML/CSS "# InspireMe" 
+- Ninja Quotes API
+- HTML/CSS
